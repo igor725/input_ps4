@@ -1,0 +1,57 @@
+name: build
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/build.yml'
+      - 'Makefile'
+      - '**.cpp'
+      - '**.h'
+
+  push:
+    paths:
+      - '.github/workflows/build.yml'
+      - 'Makefile'
+      - '**.cpp'
+      - '**.h'
+
+jobs:
+  build:
+    name: Build project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update things
+        run: |
+          sudo apt update
+          sudo apt upgrade
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
+          sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
+
+      - name: Download OpenOrbis
+        run: |
+          wget https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/releases/download/v0.5.2/v0.5.2.tar.gz
+          tar xvf v0.5.2.tar.gz
+
+      - name: Build
+        run: |
+          export OO_PS4_TOOLCHAIN=./OpenOrbis/PS4Toolchain
+          export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+          make -j4
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ps4-input
+          path: |
+            assets
+            input
+            sce_module
+            sce_sys
+            eboot.bin
+            *.pkg

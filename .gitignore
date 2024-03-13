@@ -1,0 +1,5 @@
+input/x64/
+eboot.bin
+param.sfo
+pkg.gp4
+*.pkg

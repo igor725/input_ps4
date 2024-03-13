@@ -1,0 +1,17 @@
+{
+	"configurations": [
+		{
+			"name": "(Windows) Launch",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "${config:ps4emu.exe}",
+			"args": ["-f", "${workspaceRoot}\\..\\", "-e", "${workspaceRoot}\\..\\eboot.bin", "-pad", "sdl2"],
+			"stopAtEntry": false,
+			"cwd": "${config:ps4emu.path}",
+			"environment": [],
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build"
+		}
+
+	]
+}
