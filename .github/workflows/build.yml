@@ -50,8 +50,9 @@ jobs:
         with:
           name: ps4-input
           path: |
+            README.md
+            LICENSE
             assets
-            input
             sce_module
             sce_sys
             eboot.bin
