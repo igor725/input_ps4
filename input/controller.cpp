@@ -53,8 +53,8 @@ bool Controller::CheckButtonsPressed(int stateToCheck) {
 	setButtonState(this->padData.buttons);
 
 	OrbisPadVibeParam pv {
-		.lgMotor = 0xff,//this->padData.analogButtons.r2,
-		.smMotor = 0xff//this->padData.analogButtons.l2
+		.lgMotor = this->padData.analogButtons.r2,
+		.smMotor = this->padData.analogButtons.l2
 	};
 	scePadSetVibration(this->pad, &pv);
 

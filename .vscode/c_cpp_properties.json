@@ -6,9 +6,9 @@
                 "${workspaceFolder}/**",
 				"C:/OpenOrbis/PS4Toolchain/include/**"
             ],
-            "compilerPath": "cl.exe",
+            "compilerPath": "clang.exe",
             "cStandard": "c17",
-            "cppStandard": "c++17"
+            "cppStandard": "c++20"
         }
     ],
     "version": 4
