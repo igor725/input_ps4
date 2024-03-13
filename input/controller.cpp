@@ -161,7 +161,7 @@ bool Controller::TouchpadPressed() {
 }
 
 void Controller::NextColor() {
-	scePadSetLightBar(this->pad, &this->padColors[this->currPadColor = (this->currPadColor + 1) % 6]);
+	scePadSetLightBar(this->pad, &this->padColors[this->currPadColor = (this->currPadColor + 1) % 7]);
 }
 
 void Controller::ReadSticks(float *leftx, float *lefty, float *rightx, float *righty) {
