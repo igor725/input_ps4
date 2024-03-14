@@ -1,6 +1,6 @@
 # PS4 Input
 
-This project contains example code for getting controller input from the DualShock 4 (DS4) controller. If a button or multiple buttons are pushed, they will be highlighted on the screen over the controller graphic.
+This project contains example code for getting controller input from the DualShock 4 (DS4) controller. If a button or multiple buttons are pushed, they will be highlighted on the screen over the controller graphic. The original project can be found [here](https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/tree/master/samples/input).
 
 - **Title ID**: BREW00084
 - **Content ID**: IV0000-BREW00084_00-CONTROLREX000000
