@@ -132,8 +132,10 @@ int main(void) {
         if (int fingers = controller->ReadFingers(&f)) {
             for (int x = 0; x < 10; ++x)
                 for (int y = 0; y < 10; ++y)
-                    for (int i = 0; i < fingers; ++i)
-                        scene->DrawPixel(855 + x - 5, 323 + y - 5, Color {0xFF, 0x00, 0x00});
+                    for (int i = 0; i < fingers; ++i) {
+						auto fx = (f[i].x / 65535.0f) * 211, fy = (f[i].y / 65535.0f) * 138;
+                        scene->DrawPixel(850 + x + fx, 318 + y + fy, Color {0xFF, 0x00, 0x00});
+					}
         }
 
         float lx, ly, rx, ry;
