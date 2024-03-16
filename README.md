@@ -62,12 +62,12 @@ The ELF, Orbis ELF (OELF), and object files will all be stored in the intermedia
 
 ## Building
 
-A visual studio project has been included for building on Windows. On Linux, a makefile has been included.
+On Linux, a makefile has been included for building.
 
 To build this project, the developer will need clang, which is provided in the toolchain. The `OO_PS4_TOOLCHAIN` environment variable will also need to be set to the root directory of the SDK installation.
 
 __Windows__
-Open the Visual Studio project and build, or run the batch file from command prompt or powershell with the following command:
+Run the batch file from command prompt or powershell with the following command:
 ```
 .\build.bat .\x64\Debug "input"
 ```
