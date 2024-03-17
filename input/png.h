@@ -13,6 +13,7 @@ public:
 	PNG(const char *imagePath);
 	~PNG();
 
+	uint32_t *GetImgData(int *width = NULL, int *height = NULL);
 	void Draw(Scene2D *scene, int startX, int startY);
 };
 

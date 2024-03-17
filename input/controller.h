@@ -12,7 +12,7 @@ class Controller
 	int buttonState;
 	int currPadColor;
 	OrbisPadData padData;
-	OrbisPadColor padColors[7];
+	OrbisPadColor padColors[8];
 
 	void setButtonState(int state);
 public:
@@ -41,7 +41,7 @@ public:
 	bool TouchpadPressed();
 	int ReadFingers(OrbisPadTouch **fingers);
 	void ReadSticks(float *leftx, float *lefty, float *rightx, float *righty);
-	void NextColor();
+	OrbisPadColor NextColor();
 };
 
 #endif

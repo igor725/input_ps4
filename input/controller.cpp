@@ -3,13 +3,14 @@
 
 Controller::Controller() {
 	this->currPadColor = 0;
-	this->padColors[0] = {0x00, 0xff, 0x00};
-	this->padColors[1] = {0xff, 0x00, 0x00};
-	this->padColors[2] = {0x00, 0x00, 0xff};
-	this->padColors[3] = {0xff, 0xff, 0x00};
-	this->padColors[4] = {0xff, 0x00, 0xff};
-	this->padColors[5] = {0x00, 0xff, 0xff};
-	this->padColors[6] = {0xff, 0xff, 0xff};
+	this->padColors[0] = {0xff, 0xff, 0xff};
+	this->padColors[1] = {0x00, 0xff, 0x00};
+	this->padColors[2] = {0xff, 0x00, 0x00};
+	this->padColors[3] = {0x00, 0x00, 0xff};
+	this->padColors[4] = {0xff, 0xff, 0x00};
+	this->padColors[5] = {0xff, 0x00, 0xff};
+	this->padColors[6] = {0x00, 0xff, 0xff};
+	this->padColors[7] = {0xff, 0xff, 0xff};
 }
 
 Controller::~Controller() {}
@@ -160,8 +161,9 @@ bool Controller::TouchpadPressed() {
 	return CheckButtonsPressed(ORBIS_PAD_BUTTON_TOUCH_PAD);
 }
 
-void Controller::NextColor() {
+OrbisPadColor Controller::NextColor() {
 	scePadSetLightBar(this->pad, &this->padColors[this->currPadColor = (this->currPadColor + 1) % 7]);
+	return this->padColors[this->currPadColor];
 }
 
 void Controller::ReadSticks(float *leftx, float *lefty, float *rightx, float *righty) {

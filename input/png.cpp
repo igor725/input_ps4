@@ -23,6 +23,12 @@ PNG::~PNG()
 		stbi_image_free(this->img);
 }
 
+uint32_t *PNG::GetImgData(int *width, int *height) {
+	if (width != NULL) *width = this->width;
+	if (height != NULL) *height = this->height;
+	return this->img;
+}
+
 void PNG::Draw(Scene2D *scene, int startX, int startY)
 {
 	// Don't draw non-existant images

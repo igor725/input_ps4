@@ -14,13 +14,27 @@
 std::stringstream debugLogStream;
 
 int frameID = 0;
-Color bgColor;
+
+static void repaintBar(PNG *png, OrbisPadColor newColor) {
+	static uint32_t prevColor = 0xFFFFFFFF;
+	uint32_t newColorU32 =
+		((uint32_t)newColor.r << 00) |
+		((uint32_t)newColor.g <<  8) |
+		((uint32_t)newColor.b << 16);
+	if (prevColor == newColorU32) return;
+	static int32_t iWidth = 0, iHeight = 0;
+	auto idata = png->GetImgData(&iWidth, &iHeight);
+	for (int x = 840; x < 1079; x++) {
+		for (int y = 323; y < 474; y++) {
+			ptrdiff_t off = (y * iWidth) + x;
+			if (prevColor == idata[off])
+				idata[off] = newColorU32;
+		}
+	}
+	prevColor = newColorU32;
+}
 
 int main(void) {
-    int rc;
-    int video;
-    int curFrame = 0;
-
     // No buffering
     setvbuf(stdout, NULL, _IONBF, 0);
     // Create a 2D scene
@@ -66,7 +80,7 @@ int main(void) {
             triangleBtn->Draw(scene, 1187, 359);
             released = false;
         } else if (released == false) {
-            controller->NextColor();
+			repaintBar(controllerBackground, controller->NextColor());
             released = true;
         }
 
