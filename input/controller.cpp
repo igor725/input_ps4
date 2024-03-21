@@ -41,6 +41,7 @@ bool Controller::Init(int controllerUserID) {
     }
 
 	scePadSetLightBar(this->pad, &this->padColors[this->currPadColor]);
+	scePadGetControllerInformation(this->pad, &padInfo);
     return true;
 }
 
@@ -176,4 +177,11 @@ void Controller::ReadSticks(float *leftx, float *lefty, float *rightx, float *ri
 int Controller::ReadFingers(OrbisPadTouch **fingers) {
 	if (fingers != nullptr) *fingers = this->padData.touch.touch;
 	return this->padData.touch.fingers;
+}
+
+int Controller::GetToucPadResolution(int *w, int *h) {
+	auto& res = padInfo.touchPadInfo.resolution;
+	if (w) *w = res.x;
+	if (h) *h = res.y;
+	return 0;
 }

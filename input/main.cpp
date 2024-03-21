@@ -51,6 +51,10 @@ int main(void) {
         DEBUGLOG << "Failed to initialize controller";
         for(;;);
     }
+
+	int tpw, tph;
+	controller->GetToucPadResolution(&tpw, &tph);
+
     // Create PNG instances for all the sprites
     auto controllerBackground = new PNG("/app0/assets/images/controller.png");
     auto thumbstick_pr = new PNG("/app0/assets/images/thumbstick_pr.png");
@@ -147,7 +151,7 @@ int main(void) {
             for (int x = 0; x < 10; ++x)
                 for (int y = 0; y < 10; ++y)
                     for (int i = 0; i < fingers; ++i) {
-						auto fx = (f[i].x / 65535.0f) * 211, fy = (f[i].y / 65535.0f) * 138;
+						auto fx = ((float)f[i].x / tpw) * 211, fy = ((float)f[i].y / tph) * 138;
                         scene->DrawPixel(850 + x + fx, 318 + y + fy, Color {0xFF, 0x00, 0x00});
 					}
         }
