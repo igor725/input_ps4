@@ -13,7 +13,7 @@ class Controller
 	int currPadColor;
 	OrbisPadData padData;
 	OrbisPadColor padColors[8];
-	OrbisPadControllerInformation padInfo;
+	OrbisPadInformation padInfo;
 
 	void setButtonState(int state);
 public:

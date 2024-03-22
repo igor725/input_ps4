@@ -180,8 +180,7 @@ int Controller::ReadFingers(OrbisPadTouch **fingers) {
 }
 
 int Controller::GetToucPadResolution(int *w, int *h) {
-	auto& res = padInfo.touchPadInfo.resolution;
-	if (w) *w = res.x;
-	if (h) *h = res.y;
+	if (w) *w = padInfo.touchResolutionX;
+	if (h) *h = padInfo.touchResolutionY;
 	return 0;
 }
