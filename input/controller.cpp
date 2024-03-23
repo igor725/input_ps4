@@ -3,14 +3,14 @@
 
 Controller::Controller() {
 	this->currPadColor = 0;
-	this->padColors[0] = {0xff, 0xff, 0xff};
-	this->padColors[1] = {0x00, 0xff, 0x00};
-	this->padColors[2] = {0xff, 0x00, 0x00};
-	this->padColors[3] = {0x00, 0x00, 0xff};
-	this->padColors[4] = {0xff, 0xff, 0x00};
-	this->padColors[5] = {0xff, 0x00, 0xff};
-	this->padColors[6] = {0x00, 0xff, 0xff};
-	this->padColors[7] = {0xff, 0xff, 0xff};
+	this->padColors[0] = {0xff, 0xff, 0xff, 0xff};
+	this->padColors[1] = {0x00, 0xff, 0x00, 0xff};
+	this->padColors[2] = {0xff, 0x00, 0x00, 0xff};
+	this->padColors[3] = {0x00, 0x00, 0xff, 0xff};
+	this->padColors[4] = {0xff, 0xff, 0x00, 0xff};
+	this->padColors[5] = {0xff, 0x00, 0xff, 0xff};
+	this->padColors[6] = {0x00, 0xff, 0xff, 0xff};
+	this->padColors[7] = {0xff, 0xff, 0xff, 0xff};
 }
 
 Controller::~Controller() {}
@@ -163,8 +163,10 @@ bool Controller::TouchpadPressed() {
 }
 
 OrbisPadColor Controller::NextColor() {
-	scePadSetLightBar(this->pad, &this->padColors[this->currPadColor = (this->currPadColor + 1) % 7]);
-	return this->padColors[this->currPadColor];
+	if (scePadSetLightBar(this->pad, &this->padColors[this->currPadColor = (this->currPadColor + 1) % 7]) == 0)
+		return this->padColors[this->currPadColor];
+
+	return {0x00, 0x00, 0x00, 0x00};
 }
 
 void Controller::ReadSticks(float *leftx, float *lefty, float *rightx, float *righty) {

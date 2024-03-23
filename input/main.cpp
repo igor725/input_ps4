@@ -16,6 +16,8 @@ std::stringstream debugLogStream;
 int frameID = 0;
 
 static void repaintBar(PNG *png, OrbisPadColor newColor) {
+	if (newColor.a == 0) return;
+
 	static uint32_t prevColor = 0xFFFFFFFF;
 	uint32_t newColorU32 =
 		((uint32_t)newColor.r << 00) |
