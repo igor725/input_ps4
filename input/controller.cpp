@@ -42,6 +42,11 @@ bool Controller::Init(int controllerUserID) {
 
 	scePadSetLightBar(this->pad, &this->padColors[this->currPadColor]);
 	scePadGetControllerInformation(this->pad, &padInfo);
+
+	if (scePadSetMotionSensorState(this->pad, true) != ORBIS_OK) {
+		DEBUGLOG << "[DEBUG] [ERROR] Failed to enable motion sensor!";
+	}
+
     return true;
 }
 
@@ -181,8 +186,16 @@ int Controller::ReadFingers(OrbisPadTouch **fingers) {
 	return this->padData.touch.fingers;
 }
 
-int Controller::GetToucPadResolution(int *w, int *h) {
+int Controller::GetTouchPadResolution(int *w, int *h) {
 	if (w) *w = padInfo.touchResolutionX;
 	if (h) *h = padInfo.touchResolutionY;
 	return 0;
+}
+
+void Controller::ResetOrientation() {
+	scePadResetOrientation(this->pad);
+}
+
+void Controller::ReadGyro(vec_float4* quat) {
+	if (quat) *quat = this->padData.quat;
 }

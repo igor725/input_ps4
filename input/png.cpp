@@ -34,7 +34,7 @@ void PNG::Draw(Scene2D *scene, int startX, int startY)
 	// Don't draw non-existant images
 	if(this->img == NULL)
 		return;
-		
+	
 	// Iterate the bitmap and draw the pixels
 	for (int yPos = 0; yPos < this->height; yPos++)
 	{

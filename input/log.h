@@ -14,19 +14,19 @@ public:
 	{
 		debugLogStream << funcName << ": ";
 	}
-	
+
 	template <class T>
 	Log &operator<<(const T &v)
 	{
 		debugLogStream << v;
 		return *this;
 	}
-	
+
 	~Log()
 	{
 		debugLogStream << std::endl;
 		printf("%s", debugLogStream.str().c_str());
-		
+	
 		// Clear the stream
 		debugLogStream.str("");
 	}

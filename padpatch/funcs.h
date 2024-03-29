@@ -33,6 +33,7 @@ int32_t scePadGetHandle(int32_t userID, uint32_t controller_type, uint32_t contr
 int32_t scePadResetOrientation(int32_t handle);
 int32_t scePadSetVibration(int32_t handle, const OrbisPadVibeParam *param);
 int32_t scePadOutputReport(int32_t handle, int32_t type, uint8_t *report, int32_t length);
+int32_t scePadSetMotionSensorState(int32_t handle, bool bEnable);
 
 // The below functions are currently not reversed
 void scePadConnectPort();
@@ -89,7 +90,6 @@ void scePadSetLightBarBaseBrightness();
 void scePadSetLightBarBlinking();
 void scePadSetLightBarForTracker();
 void scePadSetLoginUserNumber();
-void scePadSetMotionSensorState();
 void scePadSetProcessFocus();
 void scePadSetProcessPrivilege();
 void scePadSetProcessPrivilegeOfButtonRemapping();

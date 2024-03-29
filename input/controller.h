@@ -41,8 +41,10 @@ public:
 	bool DpadLeftPressed();
 	bool TouchpadPressed();
 	int ReadFingers(OrbisPadTouch **fingers);
-	int GetToucPadResolution(int *w, int *h);
+	int GetTouchPadResolution(int *w, int *h);
 	void ReadSticks(float *leftx, float *lefty, float *rightx, float *righty);
+	void ReadGyro(vec_float4* data);
+	void ResetOrientation();
 	OrbisPadColor NextColor();
 };
 

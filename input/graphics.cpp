@@ -13,14 +13,14 @@ Scene2D::Scene2D(int w, int h, int pixelDepth)
 	this->width = w;
 	this->height = h;
 	this->depth = pixelDepth;
-	
+
 	this->frameBufferSize = this->width * this->height * this->depth;
 }
 
 bool Scene2D::Init(size_t memSize, int numFrameBuffers)
 {
 	int rc;
-	
+
 	this->video = sceVideoOutOpen(ORBIS_VIDEO_USER_MAIN, ORBIS_VIDEO_OUT_BUS_MAIN, 0, 0);
 	this->videoMem = NULL;
 
@@ -29,7 +29,7 @@ bool Scene2D::Init(size_t memSize, int numFrameBuffers)
 		DEBUGLOG << "Failed to open a video out handle: " << std::string(strerror(errno));
 		return false;
 	}
-	
+
 #ifdef GRAPHICS_USES_FONT
 	// Load freetype
 	rc = sceSysmoduleLoadModule(0x009A);
@@ -49,25 +49,25 @@ bool Scene2D::Init(size_t memSize, int numFrameBuffers)
 		return false;
 	}
 #endif
-	
+
 	if(!initFlipQueue())
 	{
 		DEBUGLOG << "Failed to initialize flip queue: " << std::string(strerror(errno));
 		return false;
 	}
-	
+
 	if(!allocateVideoMem(memSize, 0x200000))
 	{
 		DEBUGLOG << "Failed to allocate video memory: " << std::string(strerror(errno));
 		return false;
 	}
-	
+
 	if(!allocateFrameBuffers(numFrameBuffers))
 	{
 		DEBUGLOG << "Failed to allocate frame buffers: " << std::string(strerror(errno));
 		return false;
 	}
-	
+
 	sceVideoOutSetFlipRate(this->video, 0);
 	return true;
 }
@@ -75,10 +75,10 @@ bool Scene2D::Init(size_t memSize, int numFrameBuffers)
 bool Scene2D::initFlipQueue()
 {
 	int rc = sceKernelCreateEqueue(&flipQueue, "homebrew flip queue");
-	
+
 	if(rc < 0)
 		return false;
-		
+
 	sceVideoOutAddFlipEvent(flipQueue, this->video, 0);
 	return true;
 }
@@ -87,14 +87,14 @@ bool Scene2D::allocateFrameBuffers(int num)
 {
 	// Allocate frame buffers array
 	this->frameBuffers = new char*[num];
-	
+
 	// Set the display buffers
 	for(int i = 0; i < num; i++)
 		this->frameBuffers[i] = this->allocateDisplayMem(frameBufferSize);
 
 	// Set SRGB pixel format
 	sceVideoOutSetBufferAttribute(&this->attr, 0x80000000, 1, 0, this->width, this->height, this->width);
-	
+
 	// Register the buffers to the video handle
 	return (sceVideoOutRegisterBuffers(this->video, 0, (void **)this->frameBuffers, num, &this->attr) == 0);
 }
@@ -111,32 +111,32 @@ char *Scene2D::allocateDisplayMem(size_t size)
 bool Scene2D::allocateVideoMem(size_t size, int alignment)
 {
 	int rc;
-	
+
 	// Align the allocation size
 	this->directMemAllocationSize = (size + alignment - 1) / alignment * alignment;
-	
+
 	// Allocate memory for display buffer
 	rc = sceKernelAllocateDirectMemory(0, sceKernelGetDirectMemorySize(), this->directMemAllocationSize, alignment, 3, &this->directMemOff);
-	
+
 	if(rc < 0)
 	{
 		this->directMemAllocationSize = 0;
 		return false;
 	}
-	
+
 	// Map the direct memory
 	rc = sceKernelMapDirectMemory(&this->videoMem, this->directMemAllocationSize, 0x33, 0, this->directMemOff, alignment);
-	
+
 	if(rc < 0)
 	{
 		sceKernelReleaseDirectMemory(this->directMemOff, this->directMemAllocationSize);
-		
+
 		this->directMemOff = 0;
 		this->directMemAllocationSize = 0;
-		
+
 		return false;
 	}
-	
+
 	// Set the stack pointer to the beginning of the buffer
 	this->videoMemSP = (uintptr_t)this->videoMem;
 	return true;
@@ -146,13 +146,13 @@ void Scene2D::deallocateVideoMem()
 {
 	// Free the direct memory
 	sceKernelReleaseDirectMemory(this->directMemOff, this->directMemAllocationSize);
-	
+
 	// Zero out meta data
 	this->videoMem = 0;
 	this->videoMemSP = 0;
 	this->directMemOff = 0;
 	this->directMemAllocationSize = 0;
-	
+
 	// Free the frame buffer array
 	delete this->frameBuffers;
 	this->frameBuffers = 0;
@@ -172,21 +172,21 @@ void Scene2D::FrameWait(int frameID)
 {
 	OrbisKernelEvent evt;
 	int count;
-	
+
 	// If the video handle is not initialized, bail out. This is mostly a failsafe, this should never happen.
 	if(this->video == 0)
 		return;
-		
+
 	for(;;)
 	{
 		OrbisVideoOutFlipStatus flipStatus;
-		
+
 		// Get the flip status and check the arg for the given frame ID
 		sceVideoOutGetFlipStatus(video, &flipStatus);
-		
+
 		if(flipStatus.flipArg == frameID)
 			break;
-			
+
 		// Wait on next flip event
 		if(sceKernelWaitEqueue(this->flipQueue, &evt, 1, &count, 0) != 0)
 			break;
@@ -210,17 +210,17 @@ void Scene2D::FrameBufferClear()
 bool Scene2D::InitFont(FT_Face *face, const char *fontPath, int fontSize)
 {
 	int rc;
-	
+
 	rc = FT_New_Face(this->ftLib, fontPath, 0, face);
-	
+
 	if(rc < 0)
 		return false;
 
 	rc = FT_Set_Pixel_Sizes(*face, 0, fontSize);
-	
+
 	if(rc < 0)
 		return false;
-	
+
 	return true;
 }
 #endif
@@ -234,10 +234,10 @@ void Scene2D::DrawPixel(int x, int y, Color color)
 {
 	// Get pixel location based on pitch
 	int pixel = (y * this->width) + x;
-	
+
 	// Encode to 24-bit color
 	uint32_t encodedColor = 0x80000000 + (color.r << 16) + (color.g << 8) + color.b;
-	
+
 	// Draw to the frame buffer
 	((uint32_t *)this->frameBuffers[this->activeFrameBufferIdx])[pixel] = encodedColor;
 }
@@ -245,7 +245,7 @@ void Scene2D::DrawPixel(int x, int y, Color color)
 void Scene2D::DrawRectangle(int x, int y, int w, int h, Color color)
 {
 	int xPos, yPos;
-	
+
 	// Draw row-by-row, column-by-column
 	for(yPos = y; yPos < y + h; yPos++)
 	{
@@ -262,10 +262,10 @@ void Scene2D::DrawText(char *txt, FT_Face face, int startX, int startY, Color bg
 	int rc;
 	int xOffset = 0;
 	int yOffset = 0;
-	
+
 	// Get the glyph slot for bitmap and font metrics
 	FT_GlyphSlot slot = face->glyph;
-	
+
 	// Iterate each character of the text to write to the screen
 	for(int n = 0; n < strlen(txt); n++)
 	{
