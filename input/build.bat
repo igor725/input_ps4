@@ -14,10 +14,9 @@ set extra_flags=-O3
 
 Rem Read the script arguments into local vars
 set intdir=%1
-set targetname=%~2
 
-set outputElf=%intdir%\%targetname%.elf
-set outputOelf=%intdir%\%targetname%.oelf
+set outputElf=%intdir%\input_ps4.elf
+set outputOelf=%intdir%\input_ps4.oelf
 
 set compiler=clang
 set compilerPP=clang++
@@ -47,6 +46,7 @@ Rem Create the eboot
 %OO_PS4_TOOLCHAIN%\bin\windows\create-fself.exe -in "%outputElf%" --out "%outputOelf%" --eboot "../eboot.bin" --paid 0x3800000000000011
 if NOT ERRORLEVEL 0 exit 1
 
+if NOT "%2"=="pkg" exit 0
 Rem Create param.sfo
 cd ..
 %OO_PS4_TOOLCHAIN%\bin\windows\PkgTool.Core.exe sfo_new sce_sys/param.sfo

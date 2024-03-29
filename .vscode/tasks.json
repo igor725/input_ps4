@@ -9,9 +9,7 @@
 				"cwd": "${workspaceRoot}/input"
 			},
 			"args": [
-				"x64\\Debug\\",
-				"input",
-				"C:\\OpenOrbis\\PS4Toolchain\\samples\\input"
+				"x64\\Debug\\"
 			],
 			"problemMatcher": ["$gcc"],
 			"group": {
