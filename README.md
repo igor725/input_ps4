@@ -21,6 +21,9 @@ This application allows you to test your PS4 gamepads (or your input system impl
 
 ## Building
 
+> [!WARNING]
+> Neither batch nor make script will successfully build this project with the latest OpenOrbis release (v0.5.2), you should apply libScePad header patches from the `padpatch` directory!
+
 To build this project, the developer will need clang, which is provided in the toolchain. The `OO_PS4_TOOLCHAIN` environment variable will also need to be set to the root directory of the SDK installation.
 
 __Windows__
