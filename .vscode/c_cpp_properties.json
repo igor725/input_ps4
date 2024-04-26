@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-				"C:/OpenOrbis/PS4Toolchain/include/**"
+                "C:/OpenOrbis/PS4Toolchain/include/**"
             ],
             "compilerPath": "clang.exe",
             "cStandard": "c17",

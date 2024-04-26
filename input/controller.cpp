@@ -1,17 +1,14 @@
 #include "controller.h"
 #include "log.h"
 
-Controller::Controller() {
-  this->currPadColor = 0;
-  this->padColors[0] = {0xff, 0xff, 0xff, 0xff};
-  this->padColors[1] = {0x00, 0xff, 0x00, 0xff};
-  this->padColors[2] = {0xff, 0x00, 0x00, 0xff};
-  this->padColors[3] = {0x00, 0x00, 0xff, 0xff};
-  this->padColors[4] = {0xff, 0xff, 0x00, 0xff};
-  this->padColors[5] = {0xff, 0x00, 0xff, 0xff};
-  this->padColors[6] = {0x00, 0xff, 0xff, 0xff};
-  this->padColors[7] = {0xff, 0xff, 0xff, 0xff};
-}
+static OrbisPadColor padColors[8] = {
+    {0xff, 0xff, 0xff, 0xff}, {0x00, 0xff, 0x00, 0xff},
+    {0xff, 0x00, 0x00, 0xff}, {0x00, 0x00, 0xff, 0xff},
+    {0xff, 0xff, 0x00, 0xff}, {0xff, 0x00, 0xff, 0xff},
+    {0x00, 0xff, 0xff, 0xff}, {0xff, 0xff, 0xff, 0xff},
+};
+
+Controller::Controller() { this->currPadColor = 0; }
 
 Controller::~Controller() {}
 
@@ -22,17 +19,8 @@ bool Controller::Init(int controllerUserID) {
     return false;
   }
 
-  // Get the user ID
-  if (controllerUserID < 0) {
-    OrbisUserServiceInitializeParams param;
-    param.priority = ORBIS_KERNEL_PRIO_FIFO_LOWEST;
-    sceUserServiceInitialize(&param);
-    sceUserServiceGetInitialUser(&this->userID);
-  } else {
-    this->userID = controllerUserID;
-  }
-
   // Open a handle for the controller
+  this->userID = controllerUserID;
   this->pad = scePadOpen(this->userID, 0, 0, NULL);
 
   if (this->pad < 0) {
@@ -40,7 +28,7 @@ bool Controller::Init(int controllerUserID) {
     return false;
   }
 
-  scePadSetLightBar(this->pad, &this->padColors[this->currPadColor]);
+  scePadSetLightBar(this->pad, &padColors[this->currPadColor]);
   scePadGetControllerInformation(this->pad, &padInfo);
 
   if (scePadSetMotionSensorState(this->pad, true) != ORBIS_OK) {
@@ -55,13 +43,20 @@ void Controller::setButtonState(int state) {
   this->buttonState = state;
 }
 
-bool Controller::CheckButtonsPressed(int stateToCheck) {
-  scePadReadState(this->pad, &this->padData);
-  setButtonState(this->padData.buttons);
-
+void Controller::UpdateTriggersFeedback() {
   OrbisPadVibeParam pv{.lgMotor = this->padData.analogButtons.r2,
                        .smMotor = this->padData.analogButtons.l2};
   scePadSetVibration(this->pad, &pv);
+}
+
+void Controller::ResetTriggersFeedback() {
+  OrbisPadVibeParam pv{.lgMotor = 0, .smMotor = 0};
+  scePadSetVibration(this->pad, &pv);
+}
+
+bool Controller::CheckButtonsPressed(int stateToCheck) {
+  scePadReadState(this->pad, &this->padData);
+  setButtonState(this->padData.buttons);
 
   if (stateToCheck & ORBIS_PAD_BUTTON_TRIANGLE &&
       !(this->buttonState & ORBIS_PAD_BUTTON_TRIANGLE))
@@ -183,11 +178,13 @@ bool Controller::TouchpadPressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_TOUCH_PAD);
 }
 
+OrbisPadColor Controller::GetColor() { return padColors[this->currPadColor]; }
+
 OrbisPadColor Controller::NextColor() {
   if (scePadSetLightBar(
-          this->pad, &this->padColors[this->currPadColor =
-                                          (this->currPadColor + 1) % 7]) == 0)
-    return this->padColors[this->currPadColor];
+          this->pad,
+          &padColors[this->currPadColor = (this->currPadColor + 1) % 7]) == 0)
+    return padColors[this->currPadColor];
 
   return {0x00, 0x00, 0x00, 0x00};
 }

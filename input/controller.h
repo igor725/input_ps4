@@ -11,7 +11,6 @@ class Controller {
   int buttonState;
   int currPadColor;
   OrbisPadData padData;
-  OrbisPadColor padColors[8];
   OrbisPadInformation padInfo;
 
   void setButtonState(int state);
@@ -22,6 +21,8 @@ public:
 
   bool Init(int controllerUserID);
 
+  void ResetTriggersFeedback();
+  void UpdateTriggersFeedback();
   bool CheckButtonsPressed(int stateToCheck);
 
   bool TrianglePressed();
@@ -45,6 +46,7 @@ public:
   void ReadSticks(float *leftx, float *lefty, float *rightx, float *righty);
   void ReadGyro(vec_float4 *data);
   void ResetOrientation();
+  OrbisPadColor GetColor();
   OrbisPadColor NextColor();
 };
 

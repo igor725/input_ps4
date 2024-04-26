@@ -1,11 +1,11 @@
 SETLOCAL EnableDelayedExpansion
 
 Rem Package information
-set PKG_TITLE="OpenOrbis Input Sample"
-set PKG_VERSION="1.02"
+set PKG_TITLE="PS4 Test Input System"
+set PKG_VERSION="1.1"
 set PKG_ASSETS="assets"
-set PKG_TITLE_ID="BREW00084"
-set PKG_CONTENT_ID="IV0000-%PKG_TITLE_ID%_00-CONTROLREX000000"
+set PKG_TITLE_ID="DDRM00001"
+set PKG_CONTENT_ID="IV0000-%PKG_TITLE_ID%_00-PS4INPUTSY000000"
 
 Rem Libraries to link in
 set libraries=-lc -lkernel -lc++ -lSceVideoOut -lScePad -lSceUserService
@@ -26,12 +26,16 @@ set compilerPP=clang++
 Rem Compile object files for all the source files
 for %%f in (*.c) do (
     %compiler% --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" -I"%OO_PS4_TOOLCHAIN%\\include\\c++\\v1" %extra_flags% -c -o %intdir%\%%~nf.o %%~nf.c
-	if NOT ERRORLEVEL 0 exit 1
+    set failed=1
+    if errorlevel 0 if not errorlevel 1 set "failed="
+    if defined failed exit 1
 )
 
 for %%f in (*.cpp) do (
     %compilerPP% --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" -I"%OO_PS4_TOOLCHAIN%\\include\\c++\\v1" %extra_flags% -c -o %intdir%\%%~nf.o %%~nf.cpp
-	if NOT ERRORLEVEL 0 exit 1
+    set failed=1
+    if errorlevel 0 if not errorlevel 1 set "failed="
+    if defined failed exit 1
 )
 
 Rem Get a list of object files for linking

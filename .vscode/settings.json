@@ -1,0 +1,8 @@
+{
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.clang_format_fallbackStyle": "LLVM",
+  "C_Cpp.default.cppStandard": "c++20",
+  "C_Cpp.autoAddFileAssociations": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+}
