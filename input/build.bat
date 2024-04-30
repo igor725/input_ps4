@@ -2,13 +2,13 @@ SETLOCAL EnableDelayedExpansion
 
 Rem Package information
 set PKG_TITLE="PS4 Test Input System"
-set PKG_VERSION="1.1"
+set PKG_VERSION="1.2"
 set PKG_ASSETS="assets"
 set PKG_TITLE_ID="DDRM00001"
 set PKG_CONTENT_ID="IV0000-%PKG_TITLE_ID%_00-PS4INPUTSY000000"
 
 Rem Libraries to link in
-set libraries=-lc -lkernel -lc++ -lSceVideoOut -lScePad -lSceUserService
+set libraries=-lc -lm -lkernel -lc++ -lSceVideoOut -lSceAudioOut -lScePad -lSceUserService
 
 set extra_flags=-O3
 

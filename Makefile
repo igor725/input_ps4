@@ -1,11 +1,11 @@
 # Package metadata.
 TITLE       := PS4 Test Input System
-VERSION     := 1.1
+VERSION     := 1.2
 TITLE_ID    := DDRM00001
 CONTENT_ID  := IV0000-DDRM00001_00-PS4INPUTSY000000
 
 # Libraries linked into the ELF.
-LIBS        := -lc -lkernel -lc++ -lSceVideoOut -lScePad -lSceUserService
+LIBS        := -lc -lm -lkernel -lc++ -lSceVideoOut -lSceAudioOut -lScePad -lSceUserService
 
 # Additional compile flags.
 #EXTRAFLAGS  := 

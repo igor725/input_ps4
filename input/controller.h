@@ -1,3 +1,4 @@
+#include <orbis/AudioOut.h>
 #include <orbis/Pad.h>
 #include <orbis/UserService.h>
 
@@ -6,6 +7,7 @@
 
 class Controller {
   int pad;
+  int padSpeaker;
   int userID;
   int prevButtonState;
   int buttonState;
@@ -27,7 +29,7 @@ public:
 
   bool TrianglePressed();
   bool CirclePressed();
-  bool XPressed();
+  bool CrossPressed();
   bool SquarePressed();
   bool L1Pressed();
   bool L2Pressed(float *str = nullptr);
@@ -44,6 +46,7 @@ public:
   int ReadFingers(OrbisPadTouch **fingers);
   int GetTouchPadResolution(int *w, int *h);
   void ReadSticks(float *leftx, float *lefty, float *rightx, float *righty);
+  bool SendAudioData(int16_t abuf[1024]);
   void ReadGyro(vec_float4 *data);
   void ResetOrientation();
   OrbisPadColor GetColor();

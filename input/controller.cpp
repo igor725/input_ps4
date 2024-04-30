@@ -13,19 +13,34 @@ Controller::Controller() { this->currPadColor = 0; }
 Controller::~Controller() {}
 
 bool Controller::Init(int controllerUserID) {
-  // Initialize the Pad library
-  if (scePadInit() != 0) {
-    DEBUGLOG << "[DEBUG] [ERROR] Failed to initialize pad library!";
-    return false;
-  }
+  static std::once_flag init;
+  std::call_once(init, []() {
+    // Initialize the Pad library
+    if (scePadInit() != ORBIS_OK) {
+      DEBUGLOG << "[DEBUG] [ERROR] Failed to initialize pad library!";
+      for (;;)
+        ;
+    }
+
+    if (sceAudioOutInit() != ORBIS_OK) {
+      DEBUGLOG << "[DEBUG] [ERROR] Failed to initialize libSceAudioOut!";
+    }
+  });
 
   // Open a handle for the controller
   this->userID = controllerUserID;
   this->pad = scePadOpen(this->userID, 0, 0, NULL);
+  this->padSpeaker = sceAudioOutOpen(controllerUserID, 4 /* PADSPK */, 0, 1024,
+                                     48000, 0 /* S16_MONO */);
 
-  if (this->pad < 0) {
+  if (this->pad < 1) {
     DEBUGLOG << "[DEBUG] [ERROR] Failed to open pad!";
     return false;
+  }
+
+  if (this->padSpeaker < 1) {
+    DEBUGLOG << "[DEBUG] [ERROR] Failed to open pad speaker!";
+    this->padSpeaker = 0;
   }
 
   scePadSetLightBar(this->pad, &padColors[this->currPadColor]);
@@ -118,7 +133,7 @@ bool Controller::CirclePressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_CIRCLE);
 }
 
-bool Controller::XPressed() {
+bool Controller::CrossPressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_CROSS);
 }
 
@@ -178,12 +193,19 @@ bool Controller::TouchpadPressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_TOUCH_PAD);
 }
 
+bool Controller::SendAudioData(int16_t abuf[1024]) {
+  if (abuf == nullptr || this->padSpeaker == 0)
+    return false;
+  return sceAudioOutOutput(this->padSpeaker, abuf) == 1024;
+}
+
 OrbisPadColor Controller::GetColor() { return padColors[this->currPadColor]; }
 
 OrbisPadColor Controller::NextColor() {
   if (scePadSetLightBar(
           this->pad,
-          &padColors[this->currPadColor = (this->currPadColor + 1) % 7]) == 0)
+          &padColors[this->currPadColor = (this->currPadColor + 1) % 7]) ==
+      ORBIS_OK)
     return padColors[this->currPadColor];
 
   return {0x00, 0x00, 0x00, 0x00};

@@ -4,10 +4,11 @@ This application allows you to test your PS4 gamepads (or your input system impl
 
 ## New features
 - Left and right stick position tracking
-- Haptic feedback on `L2`/`R2` trigger press
-- Switching the lightbar color by pressing `Triangle`
-- Mulitple users support (Press `Options` button on the gamepad to switch to it)
-- TouchPad reading
+- Mulitple users support (Press `Options` button on the gamepad to activate it)
+- Haptic feedback on `L2`/`R2` trigger press for active gamepad
+- Switching the lightbar color by pressing `Triangle` for active gamepad
+- Pad speaker playing some sound by pressing `Cross` for active gamepad
+- TouchPad reading for active gamepad
 
 ## Libraries used
 
@@ -15,6 +16,7 @@ This application allows you to test your PS4 gamepads (or your input system impl
 - libkernel
 - libc++
 - libSceVideoOut
+- libSceAudioOut
 - libScePad
 - libSceUserService
 
