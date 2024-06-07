@@ -1,4 +1,4 @@
-#include <iostream>
+#include "stdio.h"
 #include <sstream>
 
 #ifndef LOG_H
@@ -18,7 +18,14 @@ public:
 
   ~Log() {
     debugLogStream << std::endl;
-    printf("%s", debugLogStream.str().c_str());
+
+    auto str = debugLogStream.str();
+
+    FILE *f = fopen("/dev/stdout", "w");
+    if (f != NULL) {
+      fwrite(str.c_str(), 1, str.size(), f);
+      fclose(f);
+    }
 
     // Clear the stream
     debugLogStream.str("");
