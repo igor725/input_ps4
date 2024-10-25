@@ -40,12 +40,12 @@ jobs:
         run: |
           wget -q https://github.com/igor725/OpenOrbis-PS4-Toolchain/releases/download/0.5.3-1/v0.5.3-1.tar.gz
           tar xf v0.5.3-1.tar.gz
-          ls -al ./OpenOrbis/PS4Toolchain/
 
       - name: Build
+        env:
+          OO_PS4_TOOLCHAIN: ${{ github.workspace }}/OpenOrbis/PS4Toolchain
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
         run: |
-          export OO_PS4_TOOLCHAIN=./OpenOrbis/PS4Toolchain
-          export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
           cmake -B./build/ -S./ -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           cmake --build ./build/ -j4
           cmake --install ./build/
