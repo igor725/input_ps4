@@ -28,7 +28,7 @@ This application allows you to test your PS4 gamepads (or your input system impl
 
 To build this project, the developer will need clang, which is provided in the toolchain. The `OO_PS4_TOOLCHAIN` environment variable will also need to be set to the root directory of the SDK installation.
 
-To build the project use following CMake:
+This project uses my [OpenOrbis template](https://github.com/igor725/oo_template), to build the project use following CMake:
 ```
 cmake -Bbuild -S. -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake
 ```
