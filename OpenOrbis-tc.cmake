@@ -22,7 +22,7 @@ link_directories(
 
 add_link_options(-pie -nostartfiles -nodefaultlibs -lc -lc++ -lkernel -fuse-ld=lld -Wl,-m,elf_x86_64 -Wl,--eh-frame-hdr "-Wl,--script,${OO_PS4_TOOLCHAIN}/link.x")
 
-add_compile_options(-nobuiltininc -nostdinc++ -nostdinc)
+add_compile_options(-nostdinc++ -nostdinc)
 
 add_compile_definitions(STBI_NO_SIMD=1)
 
