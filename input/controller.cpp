@@ -30,8 +30,9 @@ bool Controller::Init(int controllerUserID) {
   // Open a handle for the controller
   this->userID = controllerUserID;
   this->pad = scePadOpen(this->userID, 0, 0, NULL);
-  this->padSpeaker = sceAudioOutOpen(controllerUserID, 4 /* PADSPK */, 0, 1024,
-                                     48000, 0 /* S16_MONO */);
+  this->padSpeaker =
+      sceAudioOutOpen(controllerUserID, ORBIS_AUDIO_OUT_PORT_TYPE_PADSPK, 0,
+                      1024, 48000, 0 /* S16_MONO */);
 
   if (this->pad < 1) {
     DEBUGLOG << "[DEBUG] [ERROR] Failed to open pad!";
@@ -72,57 +73,7 @@ void Controller::ResetTriggersFeedback() {
 bool Controller::CheckButtonsPressed(int stateToCheck) {
   scePadReadState(this->pad, &this->padData);
   setButtonState(this->padData.buttons);
-
-  if (stateToCheck & ORBIS_PAD_BUTTON_TRIANGLE &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_TRIANGLE))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_CIRCLE &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_CIRCLE))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_CROSS &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_CROSS))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_SQUARE &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_SQUARE))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_L1 &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_L1))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_R1 &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_R1))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_L2 &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_L2))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_R2 &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_R2))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_L3 &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_L3))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_R3 &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_R3))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_OPTIONS &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_OPTIONS))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_UP &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_UP))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_RIGHT &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_RIGHT))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_DOWN &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_DOWN))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_LEFT &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_LEFT))
-    return false;
-  if (stateToCheck & ORBIS_PAD_BUTTON_TOUCH_PAD &&
-      !(this->buttonState & ORBIS_PAD_BUTTON_TOUCH_PAD))
-    return false;
-
-  return true;
+  return (this->buttonState & stateToCheck) > 0;
 }
 
 bool Controller::TrianglePressed() {

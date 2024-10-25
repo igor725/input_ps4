@@ -1,4 +1,5 @@
-input/x64/
+build/
+.cache/
 eboot.bin
 param.sfo
 pkg.gp4

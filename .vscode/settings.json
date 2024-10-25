@@ -1,8 +1,14 @@
 {
-  "C_Cpp.formatting": "clangFormat",
-  "C_Cpp.clang_format_fallbackStyle": "LLVM",
-  "C_Cpp.default.cppStandard": "c++20",
   "C_Cpp.autoAddFileAssociations": false,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
+  "cmake.configureSettings": {
+    "CMAKE_TOOLCHAIN_FILE": "OpenOrbis-tc.cmake"
+  },
+  "clangd.arguments": [
+    "--compile-commands-dir=./build/",
+    "--header-insertion=never"
+  ],
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "C_Cpp.formatting": "disabled",
 }

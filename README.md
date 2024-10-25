@@ -28,17 +28,12 @@ This application allows you to test your PS4 gamepads (or your input system impl
 
 To build this project, the developer will need clang, which is provided in the toolchain. The `OO_PS4_TOOLCHAIN` environment variable will also need to be set to the root directory of the SDK installation.
 
-__Windows__
-Run the batch file from command prompt or powershell with the following command:
+To build the project use following CMake:
 ```
-.\build.bat .\x64\Debug
+cmake -Bbuild -S. -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake
 ```
 
-__Linux__
-Run the makefile.
-```
-make
-```
+You can use VS Code with recomended extensions aswell. CMake extension is already configured in project directory.
 
 
 ## Author(s)

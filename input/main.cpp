@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <math.h>
 #include <sstream>
 
@@ -167,18 +168,18 @@ static void drawControllerData(Scene2D *scene, Controller *controller) {
   vec_float4 q;
   controller->ReadGyro(&q);
 
-  scene->DrawRectangle(20,
-                       MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2) - q.x * 40)),
-                       15, 10, Color{0xFF, 0x00, 0x00});
-  scene->DrawRectangle(40,
-                       MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2) - q.y * 40)),
-                       15, 10, Color{0xFF, 0x00, 0x00});
-  scene->DrawRectangle(60,
-                       MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2) - q.z * 40)),
-                       15, 10, Color{0xFF, 0x00, 0x00});
-  scene->DrawRectangle(80,
-                       MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2) - q.w * 40)),
-                       15, 10, Color{0xFF, 0x00, 0x00});
+  scene->DrawRectangle(
+      20, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.x * 40)), 15, 10,
+      Color{0xFF, 0x00, 0x00});
+  scene->DrawRectangle(
+      40, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.y * 40)), 15, 10,
+      Color{0xFF, 0x00, 0x00});
+  scene->DrawRectangle(
+      60, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.z * 40)), 15, 10,
+      Color{0xFF, 0x00, 0x00});
+  scene->DrawRectangle(
+      80, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.w * 40)), 15, 10,
+      Color{0xFF, 0x00, 0x00});
 
   float lx, ly, rx, ry;
   controller->ReadSticks(&lx, &ly, &rx, &ry);
@@ -280,4 +281,6 @@ int main(void) {
     scene->FrameBufferSwap();
     frameID++;
   }
+
+  return 0;
 }
