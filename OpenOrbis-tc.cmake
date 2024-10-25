@@ -20,7 +20,9 @@ link_directories(
   ${OO_PS4_TOOLCHAIN}/lib
 )
 
-add_link_options(-pie -nostartfiles -nodefaultlibs -nobuiltininc -nostdinc++ -nostdinc -lc -lc++ -lkernel -fuse-ld=lld -Wl,-m,elf_x86_64 -Wl,--eh-frame-hdr "-Wl,--script,${OO_PS4_TOOLCHAIN}/link.x")
+add_link_options(-pie -nostartfiles -nodefaultlibs -lc -lc++ -lkernel -fuse-ld=lld -Wl,-m,elf_x86_64 -Wl,--eh-frame-hdr "-Wl,--script,${OO_PS4_TOOLCHAIN}/link.x")
+
+add_compile_options(-nobuiltininc -nostdinc++ -nostdinc)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-O0 -g)
