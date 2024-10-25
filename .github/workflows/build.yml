@@ -45,7 +45,8 @@ jobs:
         run: |
           export OO_PS4_TOOLCHAIN=./OpenOrbis/PS4Toolchain
           export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
-          cmake -Bbuild -S. -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake
+          cmake -B./build/ -S./ -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake
+          cmake --build ./build/ -j4
           cmake --install ./build/
 
       - name: Upload artifacts
