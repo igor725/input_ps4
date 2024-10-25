@@ -24,6 +24,8 @@ add_link_options(-pie -nostartfiles -nodefaultlibs -lc -lc++ -lkernel -fuse-ld=l
 
 add_compile_options(-nobuiltininc -nostdinc++ -nostdinc)
 
+add_compile_definitions(STBI_NO_SIMD=1)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-O0 -g)
 else()
