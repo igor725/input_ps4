@@ -41,7 +41,7 @@ bool Controller::Init(int controllerUserID) {
     static float wpos = 0.0f;
 
     while (true) {
-      std::unique_lock lock(aplay);
+      std::unique_lock<std::mutex> lock(aplay);
       this->playCond.wait(lock, [=]() -> bool { return this->playAudio; });
 
       for (int i = 0; i < 1024; i++) {
