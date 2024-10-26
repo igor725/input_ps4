@@ -54,6 +54,9 @@ bool Controller::Init(int controllerUserID) {
 
       if (sceAudioOutOutput(this->padSpeaker, abuf) != 1024)
         DEBUGLOG << "[DEBUG] [ERROR] Failed to push audio data!";
+
+      if (sceAudioOutOutput(this->padSpeaker, nullptr) < 0)
+        DEBUGLOG << "[DEBUG] [ERROR] Failed to flush audio queue";
     }
   });
 
