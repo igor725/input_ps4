@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(PKG_TITLE "PS4 Test Input System")
-set(PKG_VERSION "1.2")
+set(PKG_VERSION "1.3")
 set(PKG_TITLE_ID "DDRM00001")
 set(PKG_CONTENT_ID "IV0000-${PKG_TITLE_ID}_00-PS4INPUTSY000000")
 
