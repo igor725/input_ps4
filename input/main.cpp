@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <math.h>
 #include <sstream>
 
 #include "controller.h"
@@ -88,24 +87,13 @@ static void drawControllerData(Scene2D *scene, Controller *controller) {
     }
   }
 
-  static int16_t abuf[1024];
-  static float wpos = 0.0f;
-
   if (controller->CirclePressed()) {
     circleBtn->Draw(scene, 1244, 416);
   }
 
-  if (controller->CrossPressed()) {
+  if (controller->SetAudio(controller->CrossPressed())) {
     xBtn->Draw(scene, 1187, 472);
     controller->ResetOrientation();
-
-    for (int i = 0; i < 1024; i++) {
-      abuf[i] = ::sinf(wpos) * (int16_t)32767;
-      wpos += 0.1f;
-    }
-
-    if (!controller->SendAudioData(abuf))
-      DEBUGLOG << "Failed to send audio data to the active controller!";
   }
 
   if (controller->SquarePressed()) {

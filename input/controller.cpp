@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "log.h"
+#include <cmath>
 
 static OrbisPadColor padColors[8] = {
     {0xff, 0xff, 0xff, 0xff}, {0x00, 0xff, 0x00, 0xff},
@@ -28,11 +29,33 @@ bool Controller::Init(int controllerUserID) {
   });
 
   // Open a handle for the controller
+  this->playAudio = false;
   this->userID = controllerUserID;
   this->pad = scePadOpen(this->userID, 0, 0, NULL);
   this->padSpeaker =
       sceAudioOutOpen(controllerUserID, ORBIS_AUDIO_OUT_PORT_TYPE_PADSPK, 0,
                       1024, 48000, 0 /* S16_MONO */);
+  this->playThread = std::thread([this]() {
+    std::mutex aplay;
+    static int16_t abuf[1024];
+    static float wpos = 0.0f;
+
+    while (true) {
+      std::unique_lock lock(aplay);
+      this->playCond.wait(lock, [=]() -> bool { return this->playAudio; });
+
+      for (int i = 0; i < 1024; i++) {
+        abuf[i] = std::sinf(wpos) * (int16_t)32767;
+        wpos += 0.1f;
+      }
+
+      if (this->padSpeaker == 0)
+        continue;
+
+      if (sceAudioOutOutput(this->padSpeaker, abuf) != 1024)
+        DEBUGLOG << "[DEBUG] [ERROR] Failed to push audio data!";
+    }
+  });
 
   if (this->pad < 1) {
     DEBUGLOG << "[DEBUG] [ERROR] Failed to open pad!";
@@ -144,10 +167,10 @@ bool Controller::TouchpadPressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_TOUCH_PAD);
 }
 
-bool Controller::SendAudioData(int16_t abuf[1024]) {
-  if (abuf == nullptr || this->padSpeaker == 0)
-    return false;
-  return sceAudioOutOutput(this->padSpeaker, abuf) == 1024;
+bool Controller::SetAudio(bool state) {
+  this->playAudio = state;
+  this->playCond.notify_one();
+  return state;
 }
 
 OrbisPadColor Controller::GetColor() { return padColors[this->currPadColor]; }
