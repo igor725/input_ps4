@@ -24,13 +24,15 @@ This application allows you to test your PS4 gamepads (or your input system impl
 ## Building
 
 > [!WARNING]
-> Neither batch nor make script will successfully build this project with the latest OpenOrbis release (v0.5.2), you should apply libScePad header patches from the `padpatch` directory!
+> This project won't build with the latest atm OpenOrbis release (v0.5.2), you should use my [OpenOrbis fork](https://github.com/igor725/OpenOrbis-PS4-Toolchain) for it!
 
 To build this project, the developer will need clang, which is provided in the toolchain. The `OO_PS4_TOOLCHAIN` environment variable will also need to be set to the root directory of the SDK installation.
 
 This project uses my [OpenOrbis template](https://github.com/igor725/oo_template), to build the project use following CMake:
 ```
-cmake -Bbuild -S. -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake
+cmake -B./build/ -S./ -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake --build ./build/ -j4
+cmake --install ./build/
 ```
 
 You can use VS Code with recomended extensions aswell. CMake extension is already configured in project directory.
