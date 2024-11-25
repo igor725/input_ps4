@@ -1,5 +1,7 @@
 #include <cstdint>
+#include <memory>
 #include <sstream>
+#include <unordered_map>
 
 #include "controller.h"
 #include "graphics.h"
@@ -185,8 +187,7 @@ int main(void) {
   param.priority = ORBIS_KERNEL_PRIO_FIFO_LOWEST;
   sceUserServiceInitialize(&param);
 
-  Controller *conts[ORBIS_USER_SERVICE_MAX_LOGIN_USERS] = {nullptr, nullptr,
-                                                           nullptr, nullptr};
+  std::unordered_map<int32_t, std::unique_ptr<Controller>> controllers = {};
   int32_t currentUserId = -1;
 
   // Create a 2D scene
@@ -200,8 +201,8 @@ int main(void) {
   // Create a controller
   DEBUGLOG << "Initializing controller for initial user";
   sceUserServiceGetInitialUser(&currentUserId);
-  conts[currentUserId] = new Controller();
-  if (!conts[currentUserId]->Init(currentUserId)) {
+  controllers[currentUserId] = std::make_unique<Controller>();
+  if (!controllers[currentUserId]->Init(currentUserId)) {
     DEBUGLOG << "Failed to initialize controller";
     for (;;)
       ;
@@ -213,8 +214,11 @@ int main(void) {
   // Draw loop
   for (;;) {
     if (currentUserId != -1) {
-      conts[currentUserId]->UpdateTriggersFeedback();
-      drawControllerData(scene, conts[currentUserId]);
+      auto &ctl = controllers[currentUserId];
+      if (ctl != nullptr) {
+        ctl->UpdateTriggersFeedback();
+        drawControllerData(scene, ctl.get());
+      }
     }
 
     int ubox_center_x = FRAME_WIDTH / 2,
@@ -228,27 +232,49 @@ int main(void) {
 
     int ubox_curr_x = ubox_center_x - (ubox_full_width / 2);
 
+    {
+      OrbisUserServiceEvent svev;
+      if (sceUserServiceGetEvent(&svev) == ORBIS_OK) {
+        switch (svev.event) {
+        case SCE_USER_SERVICE_EVENT_TYPE_LOGOUT: {
+          auto ctl = controllers.find(svev.userId);
+          if (ctl != controllers.end())
+            controllers.erase(ctl);
+        } break;
+        case SCE_USER_SERVICE_EVENT_TYPE_LOGIN: {
+          if (controllers.find(svev.userId) != controllers.end())
+            break;
+          DEBUGLOG << "Initializing controller for a new user: " << svev.userId;
+          controllers[svev.userId] = std::make_unique<Controller>();
+
+          if (!controllers[svev.userId]->Init(svev.userId)) {
+            DEBUGLOG << "Failed to initialize controller";
+            for (;;)
+              ;
+          }
+
+          if (currentUserId == ORBIS_USER_SERVICE_USER_ID_INVALID)
+            currentUserId = svev.userId;
+        } break;
+        }
+      }
+    }
+
     OrbisUserServiceLoginUserIdList list;
     if (sceUserServiceGetLoginUserIdList(&list) == ORBIS_OK) {
       for (int i = 0; i < ORBIS_USER_SERVICE_MAX_LOGIN_USERS; ++i) {
         Color boxColor = {0xFF, 0x00, 0x00};
 
-        if (list.userId[i] != -1 /* USER_SERVICE_USER_ID_INVALID */) {
+        if (list.userId[i] != ORBIS_USER_SERVICE_USER_ID_INVALID) {
           const auto uid = list.userId[i];
-          if (conts[uid] == nullptr) {
-            DEBUGLOG << "Initializing controller for new user";
-            conts[uid] = new Controller();
-            if (!conts[uid]->Init(uid)) {
-              DEBUGLOG << "Failed to initialize controller";
-              for (;;)
-                ;
-            }
-          }
 
-          if (currentUserId != uid && conts[uid]->StartPressed()) {
-            DEBUGLOG << "Switching user...";
-            conts[currentUserId]->ResetTriggersFeedback();
-            currentUserId = uid;
+          if (currentUserId != uid) {
+            auto ctl = controllers.find(uid);
+            if (ctl != controllers.end() && ctl->second->StartPressed()) {
+              DEBUGLOG << "Switching user...";
+              ctl->second->ResetTriggersFeedback();
+              currentUserId = uid;
+            }
           }
 
           if (currentUserId == uid)
