@@ -1,17 +1,18 @@
-#include <cstdint>
-#include <memory>
-#include <sstream>
-#include <unordered_map>
-
 #include "controller.h"
 #include "graphics.h"
 #include "log.h"
 #include "png.h"
 
+#include <arpa/inet.h>
+#include <cstdint>
+#include <memory>
+#include <sstream>
+#include <unordered_map>
+
 // Dimensions
-#define FRAME_WIDTH 1920
+#define FRAME_WIDTH  1920
 #define FRAME_HEIGHT 1080
-#define FRAME_DEPTH 4
+#define FRAME_DEPTH  4
 
 // Logging
 std::stringstream debugLogStream;
@@ -23,49 +24,43 @@ std::stringstream debugLogStream;
 
 int frameID = 0;
 
-static void repaintBar(PNG *png, OrbisPadColor newColor) {
-  if (newColor.a == 0)
-    return;
+static void repaintBar(PNG* png, OrbisPadColor newColor) {
+  if (newColor.a == 0) return;
 
-  static uint32_t prevColor = 0xFFFFFFFF;
-  uint32_t newColorU32 = ((uint32_t)newColor.r << 00) |
-                         ((uint32_t)newColor.g << 8) |
-                         ((uint32_t)newColor.b << 16);
-  if (prevColor == newColorU32)
-    return;
+  static uint32_t prevColor   = 0xFFFFFFFF;
+  uint32_t        newColorU32 = ((uint32_t)newColor.r << 00) | ((uint32_t)newColor.g << 8) | ((uint32_t)newColor.b << 16);
+  if (prevColor == newColorU32) return;
   static int32_t iWidth = 0, iHeight = 0;
-  auto idata = png->GetImgData(&iWidth, &iHeight);
+  auto           idata = png->GetImgData(&iWidth, &iHeight);
   for (int x = 840; x < 1079; x++) {
     for (int y = 323; y < 474; y++) {
       ptrdiff_t off = (y * iWidth) + x;
-      if (prevColor == idata[off])
-        idata[off] = newColorU32;
+      if (prevColor == idata[off]) idata[off] = newColorU32;
     }
   }
   prevColor = newColorU32;
 }
 
-static void drawControllerData(Scene2D *scene, Controller *controller) {
-  if (controller == nullptr || scene == nullptr)
-    return;
+static void drawControllerData(Scene2D* scene, Controller* controller) {
+  if (controller == nullptr || scene == nullptr) return;
 
-  static auto backgrd = new PNG("/app0/assets/images/controller.png");
+  static auto backgrd       = new PNG("/app0/assets/images/controller.png");
   static auto thumbstick_pr = new PNG("/app0/assets/images/thumbstick_pr.png");
-  static auto thumbstick = new PNG("/app0/assets/images/thumbstick.png");
-  static auto touchpad = new PNG("/app0/assets/images/touchpad.png");
-  static auto dpadUp = new PNG("/app0/assets/images/dpad-up.png");
-  static auto dpadRight = new PNG("/app0/assets/images/dpad-right.png");
-  static auto dpadDown = new PNG("/app0/assets/images/dpad-down.png");
-  static auto dpadLeft = new PNG("/app0/assets/images/dpad-left.png");
-  static auto triangleBtn = new PNG("/app0/assets/images/triangle.png");
-  static auto circleBtn = new PNG("/app0/assets/images/circle.png");
-  static auto xBtn = new PNG("/app0/assets/images/x.png");
-  static auto squareBtn = new PNG("/app0/assets/images/square.png");
-  static auto startBtn = new PNG("/app0/assets/images/start.png");
-  static auto l1Trigger = new PNG("/app0/assets/images/l1.png");
-  static auto l2Trigger = new PNG("/app0/assets/images/l2.png");
-  static auto r1Trigger = new PNG("/app0/assets/images/r1.png");
-  static auto r2Trigger = new PNG("/app0/assets/images/r2.png");
+  static auto thumbstick    = new PNG("/app0/assets/images/thumbstick.png");
+  static auto touchpad      = new PNG("/app0/assets/images/touchpad.png");
+  static auto dpadUp        = new PNG("/app0/assets/images/dpad-up.png");
+  static auto dpadRight     = new PNG("/app0/assets/images/dpad-right.png");
+  static auto dpadDown      = new PNG("/app0/assets/images/dpad-down.png");
+  static auto dpadLeft      = new PNG("/app0/assets/images/dpad-left.png");
+  static auto triangleBtn   = new PNG("/app0/assets/images/triangle.png");
+  static auto circleBtn     = new PNG("/app0/assets/images/circle.png");
+  static auto xBtn          = new PNG("/app0/assets/images/x.png");
+  static auto squareBtn     = new PNG("/app0/assets/images/square.png");
+  static auto startBtn      = new PNG("/app0/assets/images/start.png");
+  static auto l1Trigger     = new PNG("/app0/assets/images/l1.png");
+  static auto l2Trigger     = new PNG("/app0/assets/images/l2.png");
+  static auto r1Trigger     = new PNG("/app0/assets/images/r1.png");
+  static auto r2Trigger     = new PNG("/app0/assets/images/r2.png");
 
   backgrd->Draw(scene, 0, 0);
 
@@ -81,7 +76,7 @@ static void drawControllerData(Scene2D *scene, Controller *controller) {
   }
 
   {
-    static Controller *prevController = controller;
+    static Controller* prevController = controller;
 
     if (prevController != controller) {
       repaintBar(backgrd, controller->GetColor());
@@ -107,7 +102,7 @@ static void drawControllerData(Scene2D *scene, Controller *controller) {
   }
 
   if (float str; controller->L2Pressed(&str)) {
-    scene->DrawRectangle(653, 255, str * 113, 10, Color{0xff, 0x00, 0x00});
+    scene->DrawRectangle(653, 255, str * 113, 10, Color {0xff, 0x00, 0x00});
     l2Trigger->Draw(scene, 653, 181);
   }
 
@@ -116,7 +111,7 @@ static void drawControllerData(Scene2D *scene, Controller *controller) {
   }
 
   if (float str; controller->R2Pressed(&str)) {
-    scene->DrawRectangle(1150, 255, str * 113, 10, Color{0x00, 0x00, 0xff});
+    scene->DrawRectangle(1150, 255, str * 113, 10, Color {0x00, 0x00, 0xff});
     r2Trigger->Draw(scene, 1150, 181);
   }
 
@@ -147,36 +142,26 @@ static void drawControllerData(Scene2D *scene, Controller *controller) {
   int tpw, tph;
   controller->GetTouchPadResolution(&tpw, &tph);
 
-  OrbisPadTouch *f = nullptr;
+  OrbisPadTouch* f = nullptr;
   if (int fingers = controller->ReadFingers(&f)) {
     for (int i = 0; i < fingers; ++i) {
       auto fx = ((float)f[i].x / tpw) * 211, fy = ((float)f[i].y / tph) * 138;
-      scene->DrawRectangle(850 + fx, 318 + fy, 10, 10, Color{0xFF, 0x00, 0x00});
+      scene->DrawRectangle(850 + fx, 318 + fy, 10, 10, Color {0xFF, 0x00, 0x00});
     }
   }
 
   vec_float4 q;
   controller->ReadGyro(&q);
 
-  scene->DrawRectangle(
-      20, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.x * 40)), 15, 10,
-      Color{0xFF, 0x00, 0x00});
-  scene->DrawRectangle(
-      40, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.y * 40)), 15, 10,
-      Color{0xFF, 0x00, 0x00});
-  scene->DrawRectangle(
-      60, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.z * 40)), 15, 10,
-      Color{0xFF, 0x00, 0x00});
-  scene->DrawRectangle(
-      80, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.w * 40)), 15, 10,
-      Color{0xFF, 0x00, 0x00});
+  scene->DrawRectangle(20, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.x * 40)), 15, 10, Color {0xFF, 0x00, 0x00});
+  scene->DrawRectangle(40, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.y * 40)), 15, 10, Color {0xFF, 0x00, 0x00});
+  scene->DrawRectangle(60, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.z * 40)), 15, 10, Color {0xFF, 0x00, 0x00});
+  scene->DrawRectangle(80, MAX(0, MIN(FRAME_HEIGHT, (FRAME_HEIGHT / 2.0f) - q.w * 40)), 15, 10, Color {0xFF, 0x00, 0x00});
 
   float lx, ly, rx, ry;
   controller->ReadSticks(&lx, &ly, &rx, &ry);
-  (controller->L3Pressed() ? thumbstick_pr : thumbstick)
-      ->Draw(scene, 780 + 20 * lx, 512 + 20 * ly);
-  (controller->R3Pressed() ? thumbstick_pr : thumbstick)
-      ->Draw(scene, 1037 + 20 * rx, 512 + 20 * ry);
+  (controller->L3Pressed() ? thumbstick_pr : thumbstick)->Draw(scene, 780 + 20 * lx, 512 + 20 * ly);
+  (controller->R3Pressed() ? thumbstick_pr : thumbstick)->Draw(scene, 1037 + 20 * rx, 512 + 20 * ry);
 }
 
 int main(void) {
@@ -187,8 +172,8 @@ int main(void) {
   param.priority = ORBIS_KERNEL_PRIO_FIFO_LOWEST;
   sceUserServiceInitialize(&param);
 
-  std::unordered_map<int32_t, std::unique_ptr<Controller>> controllers = {};
-  int32_t currentUserId = -1;
+  std::unordered_map<int32_t, std::unique_ptr<Controller>> controllers   = {};
+  int32_t                                                  currentUserId = -1;
 
   // Create a 2D scene
   DEBUGLOG << "Creating a scene";
@@ -214,21 +199,19 @@ int main(void) {
   // Draw loop
   for (;;) {
     if (currentUserId != -1) {
-      auto &ctl = controllers[currentUserId];
+      auto& ctl = controllers[currentUserId];
       if (ctl != nullptr) {
         ctl->UpdateTriggersFeedback();
         drawControllerData(scene, ctl.get());
       }
     }
 
-    int ubox_center_x = FRAME_WIDTH / 2,
-        ubox_center_y = (FRAME_HEIGHT / 2) - 32;
+    int ubox_center_x = FRAME_WIDTH / 2, ubox_center_y = (FRAME_HEIGHT / 2) - 32;
 
-    static int ubox_item_size = 16;
-    static int ubox_item_pad = 5;
+    static int ubox_item_size       = 16;
+    static int ubox_item_pad        = 5;
     static int ubox_item_paddedsize = ubox_item_size + ubox_item_pad;
-    int ubox_full_width =
-        ubox_item_paddedsize * ORBIS_USER_SERVICE_MAX_LOGIN_USERS;
+    int        ubox_full_width      = ubox_item_paddedsize * ORBIS_USER_SERVICE_MAX_LOGIN_USERS;
 
     int ubox_curr_x = ubox_center_x - (ubox_full_width / 2);
 
@@ -236,26 +219,23 @@ int main(void) {
       OrbisUserServiceEvent svev;
       if (sceUserServiceGetEvent(&svev) == ORBIS_OK) {
         switch (svev.event) {
-        case SCE_USER_SERVICE_EVENT_TYPE_LOGOUT: {
-          auto ctl = controllers.find(svev.userId);
-          if (ctl != controllers.end())
-            controllers.erase(ctl);
-        } break;
-        case SCE_USER_SERVICE_EVENT_TYPE_LOGIN: {
-          if (controllers.find(svev.userId) != controllers.end())
-            break;
-          DEBUGLOG << "Initializing controller for a new user: " << svev.userId;
-          controllers[svev.userId] = std::make_unique<Controller>();
+          case SCE_USER_SERVICE_EVENT_TYPE_LOGOUT: {
+            auto ctl = controllers.find(svev.userId);
+            if (ctl != controllers.end()) controllers.erase(ctl);
+          } break;
+          case SCE_USER_SERVICE_EVENT_TYPE_LOGIN: {
+            if (controllers.find(svev.userId) != controllers.end()) break;
+            DEBUGLOG << "Initializing controller for a new user: " << svev.userId;
+            controllers[svev.userId] = std::make_unique<Controller>();
 
-          if (!controllers[svev.userId]->Init(svev.userId)) {
-            DEBUGLOG << "Failed to initialize controller";
-            for (;;)
-              ;
-          }
+            if (!controllers[svev.userId]->Init(svev.userId)) {
+              DEBUGLOG << "Failed to initialize controller";
+              for (;;)
+                ;
+            }
 
-          if (currentUserId == ORBIS_USER_SERVICE_USER_ID_INVALID)
-            currentUserId = svev.userId;
-        } break;
+            if (currentUserId == ORBIS_USER_SERVICE_USER_ID_INVALID) currentUserId = svev.userId;
+          } break;
         }
       }
     }
@@ -277,12 +257,10 @@ int main(void) {
             }
           }
 
-          if (currentUserId == uid)
-            boxColor = {0x00, 0xFF, 0x00};
+          if (currentUserId == uid) boxColor = {0x00, 0xFF, 0x00};
         }
 
-        scene->DrawRectangle(ubox_curr_x, ubox_center_y, ubox_item_size,
-                             ubox_item_size, boxColor);
+        scene->DrawRectangle(ubox_curr_x, ubox_center_y, ubox_item_size, ubox_item_size, boxColor);
         ubox_curr_x += ubox_item_paddedsize;
       }
     }
