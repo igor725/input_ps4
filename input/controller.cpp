@@ -206,5 +206,5 @@ void Controller::ResetOrientation() {
 }
 
 void Controller::ReadGyro(vec_float4* quat) {
-  if (quat) *quat = this->padData.quat;
+  if (quat) *quat = this->padData.orientation;
 }
