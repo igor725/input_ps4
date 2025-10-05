@@ -1,15 +1,18 @@
 #include "controller.h"
+
 #include "log.h"
+
 #include <cmath>
+#include <orbis/libkernel.h>
 
 static OrbisPadColor padColors[8] = {
-    {0xff, 0xff, 0xff, 0xff}, {0x00, 0xff, 0x00, 0xff},
-    {0xff, 0x00, 0x00, 0xff}, {0x00, 0x00, 0xff, 0xff},
-    {0xff, 0xff, 0x00, 0xff}, {0xff, 0x00, 0xff, 0xff},
-    {0x00, 0xff, 0xff, 0xff}, {0xff, 0xff, 0xff, 0xff},
+    {0xff, 0xff, 0xff, 0xff}, {0x00, 0xff, 0x00, 0xff}, {0xff, 0x00, 0x00, 0xff}, {0x00, 0x00, 0xff, 0xff},
+    {0xff, 0xff, 0x00, 0xff}, {0xff, 0x00, 0xff, 0xff}, {0x00, 0xff, 0xff, 0xff}, {0xff, 0xff, 0xff, 0xff},
 };
 
-Controller::Controller() { this->currPadColor = 0; }
+Controller::Controller() {
+  this->currPadColor = 0;
+}
 
 Controller::~Controller() {}
 
@@ -29,16 +32,15 @@ bool Controller::Init(int controllerUserID) {
   });
 
   // Open a handle for the controller
-  this->playAudio = false;
-  this->userID = controllerUserID;
-  this->pad = scePadOpen(this->userID, 0, 0, NULL);
-  this->padSpeaker =
-      sceAudioOutOpen(controllerUserID, ORBIS_AUDIO_OUT_PORT_TYPE_PADSPK, 0,
-                      1024, 48000, 0 /* S16_MONO */);
+  this->playAudio  = false;
+  this->userID     = controllerUserID;
+  this->pad        = scePadOpen(this->userID, 0, 0, NULL);
+  this->padSpeaker = sceAudioOutOpen(controllerUserID, ORBIS_AUDIO_OUT_PORT_TYPE_PADSPK, 0, 1024, 48000, 0 /* S16_MONO */);
   this->playThread = std::thread([this]() {
-    std::mutex aplay;
+    scePthreadSetprio(scePthreadSelf(), ORBIS_KERNEL_PRIO_FIFO_HIGHEST);
+    std::mutex     aplay;
     static int16_t abuf[1024];
-    static float wpos = 0.0f;
+    static float   wpos = 0.0f;
 
     while (true) {
       std::unique_lock<std::mutex> lock(aplay);
@@ -49,14 +51,12 @@ bool Controller::Init(int controllerUserID) {
         wpos += 0.1f;
       }
 
-      if (this->padSpeaker == 0)
-        continue;
+      if (this->padSpeaker == 0) continue;
 
-      if (sceAudioOutOutput(this->padSpeaker, abuf) != 1024)
-        DEBUGLOG << "[DEBUG] [ERROR] Failed to push audio data!";
+      if (sceAudioOutOutput(this->padSpeaker, abuf) != 1024) DEBUGLOG << "[DEBUG] [ERROR] Failed to push audio data!";
 
-      if (sceAudioOutOutput(this->padSpeaker, nullptr) < 0)
-        DEBUGLOG << "[DEBUG] [ERROR] Failed to flush audio queue";
+      if ((int32_t)wpos % 4 != 0) continue;
+      if (sceAudioOutOutput(this->padSpeaker, nullptr) < 0) DEBUGLOG << "[DEBUG] [ERROR] Failed to flush audio queue";
     }
   });
 
@@ -82,17 +82,16 @@ bool Controller::Init(int controllerUserID) {
 
 void Controller::setButtonState(int state) {
   this->prevButtonState = this->buttonState;
-  this->buttonState = state;
+  this->buttonState     = state;
 }
 
 void Controller::UpdateTriggersFeedback() {
-  OrbisPadVibeParam pv{.lgMotor = this->padData.analogButtons.r2,
-                       .smMotor = this->padData.analogButtons.l2};
+  OrbisPadVibeParam pv {.lgMotor = this->padData.analogButtons.r2, .smMotor = this->padData.analogButtons.l2};
   scePadSetVibration(this->pad, &pv);
 }
 
 void Controller::ResetTriggersFeedback() {
-  OrbisPadVibeParam pv{.lgMotor = 0, .smMotor = 0};
+  OrbisPadVibeParam pv {.lgMotor = 0, .smMotor = 0};
   scePadSetVibration(this->pad, &pv);
 }
 
@@ -122,9 +121,8 @@ bool Controller::L1Pressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_L1);
 }
 
-bool Controller::L2Pressed(float *str) {
-  if (str != nullptr)
-    *str = (float)this->padData.analogButtons.l2 / 255.0f;
+bool Controller::L2Pressed(float* str) {
+  if (str != nullptr) *str = (float)this->padData.analogButtons.l2 / 255.0f;
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_L2);
 }
 
@@ -132,9 +130,8 @@ bool Controller::R1Pressed() {
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_R1);
 }
 
-bool Controller::R2Pressed(float *str) {
-  if (str != nullptr)
-    *str = (float)this->padData.analogButtons.r2 / 255.0f;
+bool Controller::R2Pressed(float* str) {
+  if (str != nullptr) *str = (float)this->padData.analogButtons.r2 / 255.0f;
   return CheckButtonsPressed(ORBIS_PAD_BUTTON_R2);
 }
 
@@ -176,47 +173,38 @@ bool Controller::SetAudio(bool state) {
   return state;
 }
 
-OrbisPadColor Controller::GetColor() { return padColors[this->currPadColor]; }
+OrbisPadColor Controller::GetColor() {
+  return padColors[this->currPadColor];
+}
 
 OrbisPadColor Controller::NextColor() {
-  if (scePadSetLightBar(
-          this->pad,
-          &padColors[this->currPadColor = (this->currPadColor + 1) % 7]) ==
-      ORBIS_OK)
-    return padColors[this->currPadColor];
+  if (scePadSetLightBar(this->pad, &padColors[this->currPadColor = (this->currPadColor + 1) % 7]) == ORBIS_OK) return padColors[this->currPadColor];
 
   return {0x00, 0x00, 0x00, 0x00};
 }
 
-void Controller::ReadSticks(float *leftx, float *lefty, float *rightx,
-                            float *righty) {
-  if (leftx != nullptr)
-    *leftx = (this->padData.leftStick.x / 255.0f) - 0.5f;
-  if (lefty != nullptr)
-    *lefty = (this->padData.leftStick.y / 255.0f) - 0.5f;
-  if (rightx != nullptr)
-    *rightx = (this->padData.rightStick.x / 255.0f) - 0.5f;
-  if (righty != nullptr)
-    *righty = (this->padData.rightStick.y / 255.0f) - 0.5f;
+void Controller::ReadSticks(float* leftx, float* lefty, float* rightx, float* righty) {
+  if (leftx != nullptr) *leftx = (this->padData.leftStick.x / 255.0f) - 0.5f;
+  if (lefty != nullptr) *lefty = (this->padData.leftStick.y / 255.0f) - 0.5f;
+  if (rightx != nullptr) *rightx = (this->padData.rightStick.x / 255.0f) - 0.5f;
+  if (righty != nullptr) *righty = (this->padData.rightStick.y / 255.0f) - 0.5f;
 }
 
-int Controller::ReadFingers(OrbisPadTouch **fingers) {
-  if (fingers != nullptr)
-    *fingers = this->padData.touch.touch;
+int Controller::ReadFingers(OrbisPadTouch** fingers) {
+  if (fingers != nullptr) *fingers = this->padData.touch.touch;
   return this->padData.touch.fingers;
 }
 
-int Controller::GetTouchPadResolution(int *w, int *h) {
-  if (w)
-    *w = padInfo.touchResolutionX;
-  if (h)
-    *h = padInfo.touchResolutionY;
+int Controller::GetTouchPadResolution(int* w, int* h) {
+  if (w) *w = padInfo.touchResolutionX;
+  if (h) *h = padInfo.touchResolutionY;
   return 0;
 }
 
-void Controller::ResetOrientation() { scePadResetOrientation(this->pad); }
+void Controller::ResetOrientation() {
+  scePadResetOrientation(this->pad);
+}
 
-void Controller::ReadGyro(vec_float4 *quat) {
-  if (quat)
-    *quat = this->padData.quat;
+void Controller::ReadGyro(vec_float4* quat) {
+  if (quat) *quat = this->padData.quat;
 }

@@ -28,14 +28,14 @@ class Scene2D {
   int depth;
   int video;
 
-  off_t directMemOff;
+  off_t  directMemOff;
   size_t directMemAllocationSize;
 
   uintptr_t videoMemSP;
-  void *videoMem;
+  void*     videoMem;
 
-  char **frameBuffers;
-  OrbisKernelEqueue flipQueue;
+  char**                       frameBuffers;
+  OrbisKernelEqueue            flipQueue;
   OrbisVideoOutBufferAttribute attr;
 
   int frameBufferSize;
@@ -43,13 +43,13 @@ class Scene2D {
 
   int activeFrameBufferIdx;
 
-  bool initFlipQueue();
-  bool allocateFrameBuffers(int num);
-  char *allocateDisplayMem(size_t size);
-  bool allocateVideoMem(size_t size, int alignment);
-  void deallocateVideoMem();
+  bool  initFlipQueue();
+  bool  allocateFrameBuffers(int num);
+  char* allocateDisplayMem(size_t size);
+  bool  allocateVideoMem(size_t size, int alignment);
+  void  deallocateVideoMem();
 
-public:
+  public:
   Scene2D(int w, int h, int pixelDepth);
   ~Scene2D();
 
@@ -67,11 +67,9 @@ public:
   void DrawRectangle(int x, int y, int w, int h, Color color);
 
 #ifdef GRAPHICS_USES_FONT
-  bool InitFont(FT_Face *face, const char *fontPath, int fontSize);
-  void DrawText(char *txt, FT_Face face, int startX, int startY, Color bgColor,
-                Color fgColor);
-  void DrawTextContainer(char *txt, FT_Face face, int startX, int startY,
-                         int maxW, int maxH, Color bgColor, Color fgColor);
+  bool InitFont(FT_Face* face, const char* fontPath, int fontSize);
+  void DrawText(char* txt, FT_Face face, int startX, int startY, Color bgColor, Color fgColor);
+  void DrawTextContainer(char* txt, FT_Face face, int startX, int startY, int maxW, int maxH, Color bgColor, Color fgColor);
 #endif
 };
 
