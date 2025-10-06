@@ -31,7 +31,7 @@ jobs:
       - name: Install things
         run: |
           sudo apt update
-          sudo apt install clang-19 lld
+          sudo apt install clang-19 lld-19
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
           sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
 
@@ -45,7 +45,7 @@ jobs:
           OO_PS4_TOOLCHAIN: ${{ github.workspace }}/OpenOrbis/PS4Toolchain
           DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
         run: |
-          cmake -B./build/ -S./ -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19
+          cmake -B./build/ -S./ -DCMAKE_TOOLCHAIN_FILE=OpenOrbis-tc.cmake -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 -DOO_PS4_LINKER_SUFFIX=-19
           cmake --build ./build/ -j4
           cmake --install ./build/
 

@@ -18,7 +18,7 @@ link_directories(BEFORE
   ${OO_PS4_TOOLCHAIN}/lib
 )
 
-add_link_options(-pie -nostartfiles -nodefaultlibs -lc -lc++ -lkernel -fuse-ld=lld -Wl,-m,elf_x86_64 -Wl,--eh-frame-hdr "-Wl,--script,${OO_PS4_TOOLCHAIN}/link.x")
+add_link_options(-pie -nostartfiles -nodefaultlibs -lc -lc++ -lkernel -fuse-ld=lld${OO_PS4_LINKER_SUFFIX} -Wl,-m,elf_x86_64 -Wl,--eh-frame-hdr "-Wl,--script,${OO_PS4_TOOLCHAIN}/link.x")
 
 add_compile_options(-nostdinc++ -nostdinc -fPIC -funwind-tables -fshort-wchar)
 
