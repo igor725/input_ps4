@@ -82,7 +82,7 @@ bool Controller::Init(int controllerUserID) {
 
 void Controller::setButtonState(int state) {
   this->prevButtonState = this->buttonState;
-  this->buttonState     = state;
+  this->buttonState     = state & ORBIS_PAD_BUTTON_INTERCEPTED ? 0 : state;
 }
 
 void Controller::UpdateTriggersFeedback() {
