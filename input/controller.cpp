@@ -71,7 +71,6 @@ bool Controller::Init(int controllerUserID) {
   }
 
   scePadSetLightBar(this->pad, &padColors[this->currPadColor]);
-  scePadGetControllerInformation(this->pad, &padInfo);
 
   if (scePadSetMotionSensorState(this->pad, true) != ORBIS_OK) {
     DEBUGLOG << "[DEBUG] [ERROR] Failed to enable motion sensor!";
@@ -85,7 +84,10 @@ void Controller::setButtonState(int state) {
   this->buttonState     = state & ORBIS_PAD_BUTTON_INTERCEPTED ? 0 : state;
 }
 
-void Controller::UpdateTriggersFeedback() {
+void Controller::Update() {
+  scePadGetControllerInformation(this->pad, &this->padInfo);
+  scePadReadState(this->pad, &this->padData);
+
   OrbisPadVibeParam pv {.lgMotor = this->padData.analogButtons.r2, .smMotor = this->padData.analogButtons.l2};
   scePadSetVibration(this->pad, &pv);
 }
@@ -96,7 +98,6 @@ void Controller::ResetTriggersFeedback() {
 }
 
 bool Controller::CheckButtonsPressed(int stateToCheck) {
-  scePadReadState(this->pad, &this->padData);
   setButtonState(this->padData.buttons);
   return (this->buttonState & stateToCheck) > 0;
 }
@@ -171,6 +172,10 @@ bool Controller::SetAudio(bool state) {
   this->playAudio = state;
   this->playCond.notify_one();
   return state;
+}
+
+bool Controller::IsConnected() {
+  return this->padInfo.connected;
 }
 
 OrbisPadColor Controller::GetColor() {

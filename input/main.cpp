@@ -22,7 +22,7 @@ std::stringstream debugLogStream;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-int frameID = 0;
+int32_t frameID = 0;
 
 static void repaintBar(PNG* png, OrbisPadColor newColor) {
   if (newColor.a == 0) return;
@@ -32,8 +32,8 @@ static void repaintBar(PNG* png, OrbisPadColor newColor) {
   if (prevColor == newColorU32) return;
   static int32_t iWidth = 0, iHeight = 0;
   auto           idata = png->GetImgData(&iWidth, &iHeight);
-  for (int x = 840; x < 1079; x++) {
-    for (int y = 323; y < 474; y++) {
+  for (int32_t x = 840; x < 1079; x++) {
+    for (int32_t y = 323; y < 474; y++) {
       ptrdiff_t off = (y * iWidth) + x;
       if (prevColor == idata[off]) idata[off] = newColorU32;
     }
@@ -139,12 +139,12 @@ static void drawControllerData(Scene2D* scene, Controller* controller) {
     touchpad->Draw(scene, 854, 323);
   }
 
-  int tpw, tph;
+  int32_t tpw, tph;
   controller->GetTouchPadResolution(&tpw, &tph);
 
   OrbisPadTouch* f = nullptr;
-  if (int fingers = controller->ReadFingers(&f)) {
-    for (int i = 0; i < fingers; ++i) {
+  if (int32_t fingers = controller->ReadFingers(&f)) {
+    for (int32_t i = 0; i < fingers; ++i) {
       auto fx = ((float)f[i].x / tpw) * 211, fy = ((float)f[i].y / tph) * 138;
       scene->DrawRectangle(850 + fx, 318 + fy, 10, 10, Color {0xFF, 0x00, 0x00});
     }
@@ -164,7 +164,7 @@ static void drawControllerData(Scene2D* scene, Controller* controller) {
   (controller->R3Pressed() ? thumbstick_pr : thumbstick)->Draw(scene, 1037 + 20 * rx, 512 + 20 * ry);
 }
 
-int main(void) {
+int32_t main(void) {
   // No buffering
   setvbuf(stdout, NULL, _IONBF, 0);
 
@@ -198,22 +198,14 @@ int main(void) {
   DEBUGLOG << "Entering draw loop...";
   // Draw loop
   for (;;) {
-    if (currentUserId != -1) {
-      auto& ctl = controllers[currentUserId];
-      if (ctl != nullptr) {
-        ctl->UpdateTriggersFeedback();
-        drawControllerData(scene, ctl.get());
-      }
-    }
+    int32_t ubox_center_x = FRAME_WIDTH / 2, ubox_center_y = (FRAME_HEIGHT / 2) - 32;
 
-    int ubox_center_x = FRAME_WIDTH / 2, ubox_center_y = (FRAME_HEIGHT / 2) - 32;
+    static int32_t ubox_item_size       = 16;
+    static int32_t ubox_item_pad        = 5;
+    static int32_t ubox_item_paddedsize = ubox_item_size + ubox_item_pad;
+    int32_t        ubox_full_width      = ubox_item_paddedsize * ORBIS_USER_SERVICE_MAX_LOGIN_USERS;
 
-    static int ubox_item_size       = 16;
-    static int ubox_item_pad        = 5;
-    static int ubox_item_paddedsize = ubox_item_size + ubox_item_pad;
-    int        ubox_full_width      = ubox_item_paddedsize * ORBIS_USER_SERVICE_MAX_LOGIN_USERS;
-
-    int ubox_curr_x = ubox_center_x - (ubox_full_width / 2);
+    int32_t ubox_curr_x = ubox_center_x - (ubox_full_width / 2);
 
     {
       OrbisUserServiceEvent svev;
@@ -240,29 +232,31 @@ int main(void) {
       }
     }
 
-    OrbisUserServiceLoginUserIdList list;
-    if (sceUserServiceGetLoginUserIdList(&list) == ORBIS_OK) {
-      for (int i = 0; i < ORBIS_USER_SERVICE_MAX_LOGIN_USERS; ++i) {
-        Color boxColor = {0xFF, 0x00, 0x00};
-
-        if (list.userId[i] != ORBIS_USER_SERVICE_USER_ID_INVALID) {
-          const auto uid = list.userId[i];
-
-          if (currentUserId != uid) {
-            auto ctl = controllers.find(uid);
-            if (ctl != controllers.end() && ctl->second->StartPressed()) {
-              DEBUGLOG << "Switching user...";
-              ctl->second->ResetTriggersFeedback();
-              currentUserId = uid;
-            }
-          }
-
-          if (currentUserId == uid) boxColor = {0x00, 0xFF, 0x00};
+    for (auto& [uid, ctl]: controllers) {
+      ctl->Update();
+      if (uid == currentUserId) {
+        drawControllerData(scene, ctl.get());
+      } else {
+        if (ctl->StartPressed()) {
+          DEBUGLOG << "Switching user...";
+          ctl->ResetTriggersFeedback();
+          currentUserId = uid;
         }
-
-        scene->DrawRectangle(ubox_curr_x, ubox_center_y, ubox_item_size, ubox_item_size, boxColor);
-        ubox_curr_x += ubox_item_paddedsize;
       }
+
+      // clang-format off
+      Color const boxColor =
+        currentUserId == uid ?
+            ctl->IsConnected() ?
+              Color {0x00, 0xFF, 0x00} 
+              :
+              Color {0xff, 0xff, 0x00}
+            : 
+          Color {0xFF, 0x00, 0x00};
+      // clang-format on
+
+      scene->DrawRectangle(ubox_curr_x, ubox_center_y, ubox_item_size, ubox_item_size, boxColor);
+      ubox_curr_x += ubox_item_paddedsize;
     }
 
     // Submit the frame buffer
