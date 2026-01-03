@@ -243,20 +243,32 @@ int32_t main(void) {
           currentUserId = uid;
         }
       }
+    }
 
-      // clang-format off
-      Color const boxColor =
-        currentUserId == uid ?
-            ctl->IsConnected() ?
-              Color {0x00, 0xFF, 0x00} 
-              :
-              Color {0xff, 0xff, 0x00}
-            : 
-          Color {0xFF, 0x00, 0x00};
-      // clang-format on
+    OrbisUserServiceLoginUserIdList list;
+    if (sceUserServiceGetLoginUserIdList(&list) == ORBIS_OK) {
+      for (int i = 0; i < ORBIS_USER_SERVICE_MAX_LOGIN_USERS; ++i) {
+        const auto uid = list.userId[i];
 
-      scene->DrawRectangle(ubox_curr_x, ubox_center_y, ubox_item_size, ubox_item_size, boxColor);
-      ubox_curr_x += ubox_item_paddedsize;
+        Color boxColor = {0xFF, 0x00, 0x00};
+
+        if (currentUserId == uid) {
+          auto const ctl = controllers.find(uid);
+          /**
+           * We don't care about drawing this one
+           * even if controller is missing for
+           * certain user, it means that this
+           * controller will be created the
+           * next frame
+           */
+          if (ctl == controllers.end()) continue;
+
+          boxColor = ctl->second->IsConnected() ? Color {0x00, 0xFF, 0x00} : Color {0xff, 0xff, 0x00};
+        }
+
+        scene->DrawRectangle(ubox_curr_x, ubox_center_y, ubox_item_size, ubox_item_size, boxColor);
+        ubox_curr_x += ubox_item_paddedsize;
+      }
     }
 
     // Submit the frame buffer
