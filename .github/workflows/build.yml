@@ -37,7 +37,7 @@ jobs:
 
       - name: Download OpenOrbis
         run: |
-          wget -q https://github.com/igor725/OpenOrbis-PS4-Toolchain/releases/download/v0.5.4-3/vv0.5.4-3.tar.gz
+          wget -q https://github.com/igor725/OpenOrbis-PS4-Toolchain/releases/download/v0.5.4-3/v0.5.4-3.tar.gz
           tar xf vv0.5.4-3.tar.gz
 
       - name: Build
