@@ -90,7 +90,6 @@ static void drawControllerData(Scene2D* scene, Controller* controller) {
 
   if (controller->SetAudio(controller->CrossPressed())) {
     xBtn->Draw(scene, 1187, 472);
-    controller->ResetOrientation();
   }
 
   if (controller->SquarePressed()) {
