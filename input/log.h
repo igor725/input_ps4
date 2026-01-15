@@ -1,4 +1,5 @@
 #include "stdio.h"
+
 #include <sstream>
 
 #ifndef LOG_H
@@ -8,10 +9,11 @@
 extern std::stringstream debugLogStream;
 
 class Log {
-public:
-  Log(const std::string &funcName) { debugLogStream << funcName << ": "; }
+  public:
+  Log(const std::string& funcName) { debugLogStream << funcName << ": "; }
 
-  template <class T> Log &operator<<(const T &v) {
+  template <class T>
+  Log& operator<<(const T& v) {
     debugLogStream << v;
     return *this;
   }
@@ -21,11 +23,8 @@ public:
 
     auto str = debugLogStream.str();
 
-    FILE *f = fopen("/dev/stdout", "w");
-    if (f != NULL) {
-      fwrite(str.c_str(), 1, str.size(), f);
-      fclose(f);
-    }
+    static FILE* f = fopen("/dev/stdout", "w");
+    if (f != NULL) fwrite(str.c_str(), 1, str.size(), f);
 
     // Clear the stream
     debugLogStream.str("");
